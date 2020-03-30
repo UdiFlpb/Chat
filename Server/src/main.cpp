@@ -71,7 +71,6 @@ int main(int, char* argv[])
     hostaddr.sin_family = AF_INET;
     hostaddr.sin_port = ntohs(portnum);
     inet_pton(AF_INET, "0.0.0.0", &hostaddr.sin_addr);
-    char * addr = inet_ntoa(hostaddr.sin_addr);
 
     //bind socket with address
     if(bind(Listensock, (sockaddr *) &hostaddr, sizeof(hostaddr))==-1)
@@ -80,51 +79,48 @@ int main(int, char* argv[])
         return -1;
     }
 
-    //listen to connections
-    if(listen(Listensock, 1) == -1)
+    //listen for incoming connections and get their messages
+    while(true)
     {
-        cout << "[-] Failed to listen to incoming requests, exiting...\n";
-        return -1;
-    }
-
-    //accept connection
-    sockaddr_in clientaddr;
-    socklen_t socklen;
-    int clientsock = accept(Listensock, (sockaddr *) &clientaddr, &socklen);
-    if(clientsock == -1)
-    {
-        cout << "[-] Error accepting the client, exiting...\n";
-        return -1;
-    }
-    cout << getTime() << "[+] " << inet_ntoa(clientaddr.sin_addr) << " Connected\n";
-
-    //get messages
-    char buff[1024];
-    while (true)
-    {
-        memset(&buff, 0, 1024);
-        int byteread = recv(clientsock, &buff, 1024, 0);
-        if(byteread > 0)
+        //listen to connections
+        if(listen(Listensock, 5) == -1)
         {
-            if(compareString(buff, "Exit"))
+            cout << "[-] Failed to listen to incoming requests, exiting...\n";
+            return -1;
+        }
+
+        //accept connection
+        sockaddr_in clientaddr;
+        socklen_t socklen;
+        int clientsock = accept(Listensock, (sockaddr *) &clientaddr, &socklen);
+        if(clientsock == -1)
+        {
+            cout << "[-] Error accepting the client, exiting...\n";
+            return -1;
+        }
+        cout << getTime() << "[+] " << inet_ntoa(clientaddr.sin_addr) << " has Connected\n";
+
+        //get messages
+        char buff[1024];
+        while (true)
+        {
+            memset(&buff, 0, sizeof(buff));
+            int byteread = recv(clientsock, &buff, sizeof(buff), 0);
+            if(byteread > 0)
             {
-                cout << getTime() << "[-] " << inet_ntoa(clientaddr.sin_addr) << " has Disconnected.\n";
-                break;
+                cout << getTime() << "[+] " << inet_ntoa(clientaddr.sin_addr) << " Says: "<< buff << "\n";
             }
             else
             {
-                cout << getTime() << "[+] " << inet_ntoa(clientaddr.sin_addr) << " Says: "<< buff;
-            }
-        }
-        else
-        {
-            cout << getTime() << "[-] " << inet_ntoa(clientaddr.sin_addr) << " has Disconnected.\n";
-            break;
-        }       
+                cout << getTime() << "[-] " << inet_ntoa(clientaddr.sin_addr) << " has Disconnected.\n";
+                break;
+            }       
+        } 
+        //close connection
+        close(clientsock);
     }
-    
-    //close connection
-    close(clientsock);
+
+
     close(Listensock);
 
     return 0;
