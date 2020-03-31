@@ -1,3 +1,6 @@
+#ifndef utils_h
+#define utils_h
+
 #include <iostream>
 #include <ctime>
 #include <string>
@@ -6,9 +9,8 @@
 
 using namespace std;
 
-string Gettime();
 
-string Gettime()
+inline string Gettime()
 {
    time_t now = time(0);
    tm * ltm = localtime(&now);
@@ -18,3 +20,7 @@ string Gettime()
    s = ss.str();
    return s;
 }
+
+
+
+#endif

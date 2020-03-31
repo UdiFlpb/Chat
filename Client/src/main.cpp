@@ -1,7 +1,7 @@
 #include <iostream>
 #include "argh.h"
 #include "Client.h"
-#include <netinet/in.h>
+#include <arpa/inet.h>
 
 using namespace std;
 

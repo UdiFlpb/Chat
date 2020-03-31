@@ -6,5 +6,5 @@ CXX_FLAGS =
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/udi/Desktop/Matzuv/Chat/Client/include -I/home/udi/Desktop/Matzuv/Chat/Shared 
+CXX_INCLUDES = -I/home/udi/Desktop/Matzuv/Chat/Client/include -I/home/udi/Desktop/Matzuv/Chat/Client/../Shared 
 
