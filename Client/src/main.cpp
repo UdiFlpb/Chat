@@ -44,5 +44,7 @@ int main(int, char* argv[])
     
 
     Client c(serverport, serverIp);
+    
+
     return c.Run();
 }

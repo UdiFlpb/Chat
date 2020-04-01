@@ -8,9 +8,11 @@
 #include <string.h>
 #include <sstream>
 #include <errno.h>
+#include <sys/epoll.h>
 #include "argh.h"
 #include "utils.h"
 #include "Client.h"
+
 
 //constructor
 Client::Client(int serverport, string serverip)
@@ -51,7 +53,14 @@ int Client::Conntoserver()
         cout << "[-] Error trying to connect to the server, error number: " << errno << "\n";
         return -1;
     }
+    
+    //add the socket to epoll
+    epoll_event ev;
+    ev.events = EPOLLIN;
+    ev.data.fd = m_sockfd;
+    epoll_ctl(m_epollfd, EPOLL_CTL_ADD, m_sockfd, &ev);
 
+    m_connected = true;
     return 0;
 }
 
@@ -64,7 +73,83 @@ int Client::Disconnect()
         cout << "[-] Error closing the socket, error number: " << errno << "\n";
         return -1;
     }
+    
+    //remove the socket from epoll
+    epoll_event ev;
+    ev.events = EPOLLIN;
+    ev.data.fd = m_sockfd;
+    epoll_ctl(m_epollfd, EPOLL_CTL_DEL, m_sockfd, &ev);
+    
+    m_connected = false;
+
+    cout << Gettime() << "[+] Disconnected succefully from the server.\n";
+    cout <<"\n";
     return 0;
+}
+
+
+
+//Input function - Figure out what command the user entered
+int Client::Input(string s)
+{
+    //check for Connect command
+    if((strcmp(s.c_str(), "Connect") == 0) && (m_connected==false))
+    {
+        if(Conntoserver() != -1)
+        {
+            
+            cout << Gettime() << "[+] Connected succefully to the server.\n";
+        }
+    }
+    else if((strcmp(s.c_str(), "Connect") == 0) && (m_connected==true))
+    {
+        cout << "[-] You are already connected try sending something with the command: Send\n";
+    }
+    
+
+    //check for Send command
+    else if((strcmp(s.c_str(), "Send") == 0) && (m_connected==true))
+    {
+        if(Sendmsg()==-1)
+        {
+            Disconnect();
+        }
+    }
+    else if((strcmp(s.c_str(), "Send") == 0) && (m_connected==false))
+    {
+        cout << "[-] You are not connected try connecting with the command: Connect\n"; 
+    }
+
+
+    //check for Disconnect command
+    else if((strcmp(s.c_str(), "Disconnect") == 0) && (m_connected==true))
+    {   
+        Disconnect();
+    }
+    else if((strcmp(s.c_str(), "Disconnect") == 0) && (m_connected==false))
+    {
+        cout << "[-] You are already Disconnected try connecting to the server with the command: Connect\n";
+    }
+
+
+    //check for Exit command
+    else if(strcmp(s.c_str(), "Exit") == 0)
+    {
+        if(m_connected == true)
+        {
+            Disconnect();
+        }
+        exit(0);
+    }
+
+    //Unknown command
+    else
+    {
+        cout<< "[-] This is an Unknown command try using: Connect, Disconnect, Send, Exit\n";
+    }
+
+    cout << "\n";
+
 }
 
 
@@ -74,87 +159,76 @@ int Client::Sendmsg()
     string s;
     cout << " >";
     getline(cin, s);
-    int bytessent = send(m_sockfd, s.c_str(), sizeof(s.c_str()), 0);
+    int bytessent = send(m_sockfd, s.c_str(), s.length(), 0);
     if(bytessent == -1)
     {
         cout << "[-] Error trying to send the message, error number: " << errno << "\n";
-        this->Disconnect();
+        Disconnect();
         cout << Gettime() <<"[-] Disconnected from the server.";
         return -1;
     }
     return bytessent;
 }
 
+//Recvmsg function
+void Client::Recvmsg()
+{
+    char buff[BUFFSIZE];
+    memset(&buff, 0, BUFFSIZE);
+    int byteread = recv(m_sockfd, &buff, BUFFSIZE, 0);
+    if(byteread > 0)
+    {
+        cout << Gettime() << "[!] "<< buff << "\n\n";
+    }
+    else
+    {
+        cout << Gettime() << "[-] Server Disconnected.\n";
+        Disconnect();
+    }
+
+}
 
 //run function
 int Client::Run()
 {
-    string s;
-    bool connected = false;
-    while (true)
+    //variables
+    int nfds;
+    int stdfd = fileno(stdin);
+    char buff [BUFFSIZE];
+    m_epollfd = epoll_create(EPOLL_EVENTS_SIZE);
+    epoll_event ev, events[EPOLL_EVENTS_SIZE];
+
+    //add stdin to epoll
+    ev.events = EPOLLIN;
+    ev.data.fd = stdfd;
+    epoll_ctl(m_epollfd, EPOLL_CTL_ADD, stdfd, &ev);
+
+    while(true)
     {
-        cout << ">";
-        getline(cin, s);
-
-        //check for Connect command
-        if((strcmp(s.c_str(), "Connect") == 0) && (connected==false))
+        nfds = epoll_wait(m_epollfd, events, EPOLL_EVENTS_SIZE, EPOLL_WAIT);
+        if (nfds == -1)
         {
-            if(this->Conntoserver() != -1)
+            cout << "[-] Failed on epoll_wait, error number: " << errno << "\n";
+            exit(EXIT_FAILURE);
+        }
+
+        for(int i=0; i<nfds; i++)        
+        {
+            if(events[i].data.fd == stdfd)
             {
-                connected = true;
-                cout << Gettime() << "[+] Connected succefully to the server.\n";
+                memset(&buff, 0, BUFFSIZE);
+                read(stdfd, &buff, BUFFSIZE);
+                Input(string (buff, Getbuffsize(buff)));
             }
-        }
-        else if((strcmp(s.c_str(), "Connect") == 0) && (connected==true))
-        {
-            cout << "[-] You are already connected try sending something with the command: Send\n";
-        }
-        
-
-        //check for Send command
-        else if((strcmp(s.c_str(), "Send") == 0) && (connected==true))
-        {
-            if(this->Sendmsg()==-1)
+            else
             {
-                connected=false;
+                Recvmsg();
             }
+            
         }
-        else if((strcmp(s.c_str(), "Send") == 0) && (connected==false))
-        {
-            cout << "[-] You are not connected try connecting with the command: Connect\n"; 
-        }
-
-
-        //check for Disconnect command
-        else if((strcmp(s.c_str(), "Disconnect") == 0) && (connected==true))
-        {   
-            if(this->Disconnect() != -1)
-            {
-                connected = false;
-            }
-        }
-        else if((strcmp(s.c_str(), "Disconnect") == 0) && (connected==false))
-        {
-            cout << "[-] You are already Disconnected try connecting to the server with the command: Connect\n";
-        }
-
-
-        //check for Exit command
-        else if(strcmp(s.c_str(), "Exit") == 0)
-        {
-            if(connected == true)
-            {
-                this->Disconnect();
-            }
-            return 0;
-        }
-
-        //Unknown command
-        else
-        {
-            cout<< "[-] This is an Unknown command try using: Connect, Disconnect, Send, Exit\n";
-        }
-
-        cout << "\n";
     }
+
+
+
+
 }

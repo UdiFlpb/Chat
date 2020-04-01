@@ -8,7 +8,7 @@
 #include <sstream>
 
 using namespace std;
-
+#define BUFFSIZE  10000
 
 inline string Gettime()
 {
@@ -22,5 +22,16 @@ inline string Gettime()
 }
 
 
+inline int Getbuffsize(char buff[])
+{
+   for(int i=0; i<BUFFSIZE; i++)
+   {
+      if(buff[i] == *"\0")
+      {
+         return i-1;
+      }
+   }
+   return BUFFSIZE;
+}
 
 #endif

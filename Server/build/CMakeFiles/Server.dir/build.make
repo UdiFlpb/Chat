@@ -60,15 +60,15 @@ include CMakeFiles/Server.dir/flags.make
 CMakeFiles/Server.dir/src/Server.cpp.o: CMakeFiles/Server.dir/flags.make
 CMakeFiles/Server.dir/src/Server.cpp.o: ../src/Server.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Server.dir/src/Server.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/src/Server.cpp.o -c /home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp
+	/usr/bin/g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/src/Server.cpp.o -c /home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp
 
 CMakeFiles/Server.dir/src/Server.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Server.dir/src/Server.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp > CMakeFiles/Server.dir/src/Server.cpp.i
+	/usr/bin/g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp > CMakeFiles/Server.dir/src/Server.cpp.i
 
 CMakeFiles/Server.dir/src/Server.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Server.dir/src/Server.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp -o CMakeFiles/Server.dir/src/Server.cpp.s
+	/usr/bin/g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp -o CMakeFiles/Server.dir/src/Server.cpp.s
 
 CMakeFiles/Server.dir/src/Server.cpp.o.requires:
 
@@ -84,15 +84,15 @@ CMakeFiles/Server.dir/src/Server.cpp.o.provides.build: CMakeFiles/Server.dir/src
 CMakeFiles/Server.dir/src/main.cpp.o: CMakeFiles/Server.dir/flags.make
 CMakeFiles/Server.dir/src/main.cpp.o: ../src/main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Server.dir/src/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/src/main.cpp.o -c /home/udi/Desktop/Matzuv/Chat/Server/src/main.cpp
+	/usr/bin/g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Server.dir/src/main.cpp.o -c /home/udi/Desktop/Matzuv/Chat/Server/src/main.cpp
 
 CMakeFiles/Server.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Server.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/udi/Desktop/Matzuv/Chat/Server/src/main.cpp > CMakeFiles/Server.dir/src/main.cpp.i
+	/usr/bin/g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/udi/Desktop/Matzuv/Chat/Server/src/main.cpp > CMakeFiles/Server.dir/src/main.cpp.i
 
 CMakeFiles/Server.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Server.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/udi/Desktop/Matzuv/Chat/Server/src/main.cpp -o CMakeFiles/Server.dir/src/main.cpp.s
+	/usr/bin/g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/udi/Desktop/Matzuv/Chat/Server/src/main.cpp -o CMakeFiles/Server.dir/src/main.cpp.s
 
 CMakeFiles/Server.dir/src/main.cpp.o.requires:
 

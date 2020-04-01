@@ -3,15 +3,15 @@
 
 using namespace std;
 
-#define MAX_CONN 5
-#define BUFF_SIZE 1024
+#define BUFF_SIZE 10000
+#define EPOLL_WAIT -1
 
 class Server
 {
     //public section
     public:
         //public functions
-        Server (int port);
+        Server (int port, int MAX_CONN);
         int Start();
         int Run();
     
@@ -20,6 +20,17 @@ class Server
         //private variables
         int m_port;
         int m_Listensock;
+        int m_maxconn;
+        int m_clientlist[100];
+
+        //private functions
+        int Acceptconn();
+        void Addclient(int fd);
+        void Removeclient(int fd);
+        void Sendmsg(int fd, string s);
+        void Printclients();
+        bool Checkiffull();
+        int Declineconn();
     
 };
 

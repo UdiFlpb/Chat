@@ -6,6 +6,9 @@
 
 using namespace std;
 
+#define EPOLL_EVENTS_SIZE 2
+#define EPOLL_WAIT -1
+#define BUFFSIZE 10000
 
 //creating client class
 class Client
@@ -22,11 +25,15 @@ class Client
     int m_serverport;
     string m_serverip;
     int m_sockfd;
+    bool m_connected = false;
+    int m_epollfd;
 
     //private functions
     int Conntoserver();
     int Disconnect();
     int Sendmsg();
+    int Input(string s);
+    void Recvmsg();
 
     
 };
