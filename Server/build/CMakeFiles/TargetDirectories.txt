@@ -1,0 +1,3 @@
+/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles/rebuild_cache.dir
+/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles/Server.dir
+/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles/edit_cache.dir

@@ -1,0 +1,8 @@
+[2/4/2020 16:28:2] : [+] Someone new connected with ID: 7
+[2/4/2020 16:28:11] : [-] 7 has Disconnected.
+[4/4/2020 16:39:36] : [+] Someone new connected with ID: 7
+[4/4/2020 16:39:39] : [+] Someone new connected with ID: 8
+[4/4/2020 16:39:42] : [+] 8 Says: Hi
+[4/4/2020 16:39:46] : [+] 7 Says: hi
+[4/4/2020 16:39:50] : [-] 7 has Disconnected.
+[4/4/2020 16:39:53] : [-] 8 has Disconnected.
