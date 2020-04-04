@@ -1,6 +1,10 @@
 #include <iostream>
+#include <unistd.h>
+#include <errno.h>
+#include <string>
 #include "argh.h"
 #include "Server.h"
+#include "Logger.h"
 #include "utils.h"
 
 using namespace std;
@@ -42,17 +46,48 @@ int main(int, char* argv[])
         }
     }
 
+
+
+    //pipe setup
+    int pipefd[2];
+    pid_t pid;
+    if(pipe(pipefd)==-1)
+    {
+        cout << "[-] Error while trying to create the Pipe, error number: " << errno << "\n";
+        exit(EXIT_FAILURE);     
+    }
+
     //start the server
-    Server server(portnum, max_conn);
+    Server server(portnum, max_conn, pipefd[1]);
     if(server.Start() == -1)
     {
         return -1;
     }
 
+
     cout << Gettime() << "[+] The server is up\n";
 
-    //run the server
-    server.Run();
+    Logger log(pipefd[0]);
+
+    pid = fork();
+
+    if(pid == 0)
+    {
+        //run the server
+        server.Run();
+        exit(0);
+    }
+    
+    else
+    {
+        //run the logger
+        log.Run();
+    }
+    
+
+
+
+
 
     return 0;
 }

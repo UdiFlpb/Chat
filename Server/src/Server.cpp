@@ -10,6 +10,7 @@
 #include <sstream>
 #include <errno.h>
 #include <sys/epoll.h>
+#include <unistd.h>
 #include "argh.h"
 #include "utils.h"
 #include "Server.h"
@@ -17,14 +18,39 @@
 using namespace std;
 
 //CONSTRUCTOR
-Server::Server (int port, int maxconn)
+Server::Server (int port, int maxconn, int pipefd)
 {
     m_port = port;
     m_maxconn = maxconn;
+    m_pipefd = pipefd;
+    
+    //initialize the m_clientlist to 0
     for(int i=0; i<m_maxconn; i++)
     {
         m_clientlist[i] = 0;
     }
+}
+
+//Exit function
+void Server::Exitserver()
+{
+    //close all client sockets
+    for (int i=0; i<m_maxconn; i++)
+    {
+        if(m_clientlist[i] != 0)
+        {
+            close(m_clientlist[i]);
+        }
+    }
+
+    //close listening socket
+    close(m_Listensock);
+}
+
+//Write to pipe function
+void Server::Writetopipe(string s)
+{
+    write(m_pipefd, s.c_str(), s.length()+1);
 }
 
 //checks if full 
@@ -55,7 +81,7 @@ int Server::Start()
     m_Listensock = socket(AF_INET, SOCK_STREAM, 0);
     if(m_Listensock == -1)
     {
-        cout << "[-] Error while trying to create the socket, error number: " << errno << "\n";
+        cout << ("[-] Error while trying to create the socket, error number: " + to_string(errno) + "\n");
         return -1;
     }
     
@@ -63,13 +89,13 @@ int Server::Start()
     int trueflag = 1;
     if (setsockopt(m_Listensock, SOL_SOCKET, SO_REUSEADDR, &trueflag, sizeof(int)) != 0)
     {
-        cout << "[-] Error while configuring the Listening socket, error number: " << errno << "\n";
+        cout << ("[-] Error while configuring the Listening socket, error number: " + to_string(errno) + "\n");
         return -1;
     }
     struct linger lo = { 1, 0 };
     if(setsockopt(this->m_Listensock, SOL_SOCKET, SO_LINGER, &lo, sizeof(lo)) != 0)
     {
-        cout << "[-] Error while configuring the Listening socket, error number: " << errno << "\n";
+        cout << ("[-] Error while configuring the Listening socket, error number: " + to_string(errno) + "\n");
         return -1;
     }
 
@@ -83,7 +109,7 @@ int Server::Start()
     //bind socket with address
     if(bind(m_Listensock, (sockaddr *) &hostaddr, sizeof(hostaddr))==-1)
     {
-        cout << "[-] Failed to bind the socket to the address, error number: " << errno << "\n";
+        cout << ("[-] Failed to bind the socket to the address, error number: " + to_string(errno) + "\n");
         return -1;
     }
 
@@ -98,10 +124,10 @@ int Server::Acceptconn()
     int clientsock = accept(m_Listensock, (sockaddr *) &clientaddr, (socklen_t *) &clientaddrsize);
     if(clientsock == -1)
     {
-        cout << "[-] Error accepting the client, error number: " << errno << "\n";
+        Writetopipe("[-] Error accepting the client, error number: " + to_string(errno) + "\n");
         return -1;
     }
-    cout << Gettime() << "[+] Someone new connected with ID: " << clientsock << "\n";
+    Writetopipe(Gettime() + "[+] Someone new connected with ID: " + to_string(clientsock) + "\n");
     
     return clientsock;
 }
@@ -126,7 +152,7 @@ int Server::Declineconn()
     int clientsock = accept(m_Listensock, (sockaddr *) &clientaddr, (socklen_t *) &clientaddrsize);
     if(clientsock == -1)
     {
-        cout << "[-] Error Declineing the client, error number: " << errno << "\n";
+        Writetopipe("[-] Error Declineing the client, error number: " + to_string(errno) + "\n");
         return -1;
     }
     
@@ -155,7 +181,7 @@ void Server::Sendmsg(int fd, string s)
 {   
     if(send(fd, s.c_str(), s.length(), 0)==-1)
     {
-        cout << "[-] Failed sending the message to: " << fd << " error number: " << errno << "\n";
+        Writetopipe("[-] Failed sending the message to: " + to_string(fd) + " error number: " + to_string(errno) + "\n");
     }
 }
 
@@ -171,20 +197,23 @@ int Server::Run()
     //listen to connections
     if(listen(m_Listensock, m_maxconn) == -1)
     {
-        cout << "[-] Failed to listen to incoming requests, error number: " << errno << "\n";
+        Writetopipe("[-] Failed to listen to incoming requests, error number: " + to_string(errno) + "\n");
         return -1;
     }
     
     
     if(epollfd == -1)
     {
-        cout << "[-] Failed to Create epoll, error number: " << errno << "\n";
+        Writetopipe("[-] Failed to Create epoll, error number: " + to_string(errno) + "\n");
         return -1;
     }
     
     ev.events = EPOLLIN;
     ev.data.fd = m_Listensock;
     epoll_ctl(epollfd,  EPOLL_CTL_ADD, m_Listensock, &ev);
+    int stdinfd;
+    ev.data.fd = stdinfd;
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, stdinfd, &ev);
 
     while(true)
     {
@@ -193,7 +222,7 @@ int Server::Run()
 
         if (nfds == -1)
         {
-            cout << "[-] Failed on epoll_wait, error number: " << errno << "\n";
+            Writetopipe("[-] Failed on epoll_wait, error number: " + to_string(errno) + "\n");
             exit(EXIT_FAILURE);
         }
 
@@ -225,12 +254,24 @@ int Server::Run()
 
                 else
                 {
-                    cout << Gettime() << "[!] Someone tries to connect but already reached max connections, connection is not approved.\n";
+                    Writetopipe(Gettime() + "[!] Someone tries to connect but already reached max connections, connection is not approved.\n");
                     Declineconn();
                 }
                 
             }
 
+            //got something from the console
+            else if(events[i].data.fd == stdinfd)
+            {
+                memset(&buff, 0, BUFF_SIZE);
+                read(stdinfd, &buff, BUFF_SIZE);
+                if(string(buff, Getbuffsize(buff)).compare("Exit"))
+                {
+                    Exitserver();
+                    break;
+                }
+
+            }
             //someone sends a message
             else
             {
@@ -238,7 +279,7 @@ int Server::Run()
                 int byteread = recv(events[i].data.fd, &buff, BUFF_SIZE, 0);
                 if(byteread > 0)
                 {
-                    cout << Gettime() << "[+] " << events[i].data.fd << " Says: "<< buff << "\n";
+                    Writetopipe(Gettime() + "[+] " + to_string(events[i].data.fd) + " Says: " + string(buff, Getbuffsize(buff)+1) + "\n");
                     for(int j=0; j<m_maxconn; j++)
                     {
                         if((m_clientlist[j] != events[i].data.fd) && (m_clientlist[j] != 0))                     
@@ -253,7 +294,7 @@ int Server::Run()
                 else
                 {
                     //remove clients from epoll and client list
-                    cout << Gettime() << "[-] " << events[i].data.fd << " has Disconnected.\n";
+                    Writetopipe(Gettime() + "[-] " + to_string(events[i].data.fd) + " has Disconnected.\n");
                     int clientsock = events[i].data.fd;
                     ev.data.fd = events[i].data.fd;
                     epoll_ctl(epollfd, EPOLL_CTL_DEL, events[i].data.fd, &ev);

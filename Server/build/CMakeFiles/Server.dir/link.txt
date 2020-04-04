@@ -1,1 +1,1 @@
-/usr/bin/g++-7  -g  -rdynamic CMakeFiles/Server.dir/src/Server.cpp.o CMakeFiles/Server.dir/src/main.cpp.o  -o Server 
+/usr/bin/g++-7  -g  -rdynamic CMakeFiles/Server.dir/src/Logger.cpp.o CMakeFiles/Server.dir/src/Server.cpp.o CMakeFiles/Server.dir/src/main.cpp.o  -o Server 

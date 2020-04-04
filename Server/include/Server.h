@@ -11,7 +11,7 @@ class Server
     //public section
     public:
         //public functions
-        Server (int port, int MAX_CONN);
+        Server (int port, int MAX_CONN, int pipefd);
         int Start();
         int Run();
     
@@ -22,6 +22,7 @@ class Server
         int m_Listensock;
         int m_maxconn;
         int m_clientlist[100];
+        int m_pipefd;
 
         //private functions
         int Acceptconn();
@@ -31,6 +32,8 @@ class Server
         void Printclients();
         bool Checkiffull();
         int Declineconn();
+        void Writetopipe(string s);
+        void Exitserver();
     
 };
 

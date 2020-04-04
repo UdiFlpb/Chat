@@ -4,6 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/udi/Desktop/Matzuv/Chat/Server/src/Logger.cpp" "/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles/Server.dir/src/Logger.cpp.o"
   "/home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp" "/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles/Server.dir/src/Server.cpp.o"
   "/home/udi/Desktop/Matzuv/Chat/Server/src/main.cpp" "/home/udi/Desktop/Matzuv/Chat/Server/build/CMakeFiles/Server.dir/src/main.cpp.o"
   )

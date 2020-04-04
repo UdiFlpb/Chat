@@ -1,6 +1,11 @@
 [
 {
   "directory": "/home/udi/Desktop/Matzuv/Chat/Server/build",
+  "command": "/usr/bin/g++-7   -I/home/udi/Desktop/Matzuv/Chat/Server/include -I/home/udi/Desktop/Matzuv/Chat/Server/../Shared  -g   -o CMakeFiles/Server.dir/src/Logger.cpp.o -c /home/udi/Desktop/Matzuv/Chat/Server/src/Logger.cpp",
+  "file": "/home/udi/Desktop/Matzuv/Chat/Server/src/Logger.cpp"
+},
+{
+  "directory": "/home/udi/Desktop/Matzuv/Chat/Server/build",
   "command": "/usr/bin/g++-7   -I/home/udi/Desktop/Matzuv/Chat/Server/include -I/home/udi/Desktop/Matzuv/Chat/Server/../Shared  -g   -o CMakeFiles/Server.dir/src/Server.cpp.o -c /home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp",
   "file": "/home/udi/Desktop/Matzuv/Chat/Server/src/Server.cpp"
 },
